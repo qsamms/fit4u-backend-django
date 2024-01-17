@@ -38,8 +38,8 @@ brew services start mysql
 Then you'll have to add the MySQL user and password environment variables so they aren't plaintext in the code.
 To do this, add the following lines to the `activate` file in the /venv/bin folder:
 <pre>
-export MYSQL_USERNAME="root"
-export MYSQL_PASSWORD="rootpassword"
+export MYSQL_USERNAME="{YOUR_MYSQL_USERNAME}"
+export MYSQL_PASSWORD="{YOUR_MYSQL_PASSWORD}"
 </pre>
 
 To verify everything has worked correctly run the following commands: 
