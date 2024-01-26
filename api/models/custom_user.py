@@ -6,3 +6,5 @@ class CustomUser(AbstractUser):
         app_label = 'api'
         
     email = models.EmailField(null=False, unique=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'username']
