@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
-from decouple import config
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -45,36 +44,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework', 
     'rest_framework.authtoken',
-    'djoser',
-    'social_django',
     'api',
 ]
 
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',
-    'django.contrib.auth.backends.ModelBackend'
+    'django.contrib.auth.backends.ModelBackend',
 )
 
-DJOSER = {
-    'LOGIN_FIELD': 'email',
-    'SOCIAL_AUTH_TOKEN_STRATEGY': 'fit4u.strategy.TokenStrategy',
-    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': ['http://127.0.0.1:5173', 'http://127.0.0.1:5173/login', 'http://localhost:5173/login'],
-}
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-       'rest_framework.authentication.TokenAuthentication',
-   ),
-}
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('GOOGLE_CLIENT_ID')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('GOOGLE_CLIENT_SECRET')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
-    'https://www.googleapis.com/auth/userinfo.email',
-    'https://www.googleapis.com/auth/userinfo.profile',
-    'openid'
-]
-SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
+BASE_APP_URL = "http://localhost:5173"
+BASE_API_URL = "http://localhost:8000"
+GOOGLE_OAUTH2_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+GOOGLE_OAUTH2_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -85,18 +65,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
-CORS_ORIGIN_WHITELIST = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
-CORS_ALLOW_CREDENTIALS = True
 ROOT_URLCONF = 'fit4u.urls'
 
 TEMPLATES = [

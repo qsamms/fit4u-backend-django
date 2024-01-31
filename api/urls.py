@@ -1,6 +1,6 @@
-from django.urls import path
-from .views import user_views
+from django.urls import path, include
+from .views.google_login import GoogleLoginApi
 
 urlpatterns = [
-     path('user/', user_views.UserAPI.as_view()),
+    path('auth/login/google/', GoogleLoginApi.as_view(), name='google_oauth')
 ]
