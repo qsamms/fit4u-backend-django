@@ -47,9 +47,11 @@ INSTALLED_APPS = [
     'api',
 ]
 
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-)
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
 
 BASE_APP_URL = "http://localhost:5173"
 BASE_API_URL = "http://localhost:8000"

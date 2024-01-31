@@ -39,7 +39,7 @@ def google_get_access_token(code: str, redirect_uri: str) -> str:
 def google_get_user_info(access_token: str) -> Dict[str, Any]:
     response = requests.get(
         GOOGLE_USER_INFO_URL,
-       headers={ "Authorization": "Bearer %s" % access_token, },
+        headers={ "Authorization": f"Bearer {access_token}" },
     )
 
     if not response.ok:
