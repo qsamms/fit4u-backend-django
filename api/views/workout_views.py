@@ -58,7 +58,7 @@ class WorkoutApiView(APIView):
             exercise_serializer = ExerciseSerializer(exercises, many=True)
             workout_data["exercises"] = exercise_serializer.data
 
-            return Response(data=workout_data, status=status.HTTP_200_OK)
+            return Response(data={"workout": workout_data}, status=status.HTTP_200_OK)
 
         else:
             workouts = Workout.objects.filter(user=request.user.id).order_by("datetime")
@@ -71,4 +71,4 @@ class WorkoutApiView(APIView):
                 exercise_serializer = ExerciseSerializer(exercises, many=True)
                 workout["exercises"] = exercise_serializer.data
 
-            return Response(data=workout_data, status=status.HTTP_200_OK)
+            return Response(data={"workouts": workout_data}, status=status.HTTP_200_OK)
