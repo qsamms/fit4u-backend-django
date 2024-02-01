@@ -26,7 +26,7 @@ class WorkoutApiView(APIView):
 
         workout = workout_serializer.save()
 
-        exercises = request.data.get("exercises", [])
+        exercises = request.data["workout"].get("exercises", [])
         for exercise in exercises:
             exercise["workout"] = workout.id
 
@@ -61,7 +61,7 @@ class WorkoutApiView(APIView):
             return Response(data={"workout": workout_data}, status=status.HTTP_200_OK)
 
         else:
-            workouts = Workout.objects.filter(user=request.user.id).order_by("datetime")
+            workouts = Workout.objects.filter(user=request.user.id).order_by("-datetime")
             workout_serialier = WorkoutSerializer(workouts, many=True)
             workout_data = workout_serialier.data
 
