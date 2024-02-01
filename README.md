@@ -20,6 +20,11 @@ If you haven't before, you'll need to set up a root user/password with MySQL, on
 brew services start mysql
 </pre>
 
+If you're on linux, you can follow these instructions here to install, setup root user, and start mysql. If you're developing on windows then idk what to tell you LOL
+<pre>
+https://dev.mysql.com/doc/refman/8.0/en/linux-installation.html
+</pre>
+
 Create a virutal environemnt in the root directory: 
 <pre>
 python -m venv venv
@@ -47,6 +52,7 @@ add these values as environment variables in the `activate` script in /venv/bin 
 <pre>
 export GOOGLE_CLIENT_ID="YOUR_GOOGLE_CLIENT_ID"
 export GOOGLE_CLIENT_SECRET="YOUR_GOOGLE_CLIENT_SECRET"
+</pre>
 
 To verify everything has worked correctly run the following commands: 
 <pre>
