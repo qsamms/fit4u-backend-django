@@ -1,11 +1,11 @@
 # views.py
-from ..utils.google_oauth_utils import get_user_data
 from django.shortcuts import redirect
 from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 from api.models import CustomUser
-from ..serializers.auth_serializer import GoogleAuthSerializer
+from api.serializers import GoogleAuthSerializer
+from api.utils import get_user_data
 
 
 class GoogleLoginApi(APIView):

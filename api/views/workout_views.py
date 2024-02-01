@@ -1,11 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from api.models import Workout, Exercise
-from api.serializers import WorkoutSerializer
-from ..serializers.exercise_serializer import ExerciseSerializer
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from api.models import Workout, Exercise
+from api.serializers import WorkoutSerializer, ExerciseSerializer
 
 
 class WorkoutApiView(APIView):
