@@ -13,24 +13,24 @@ class WorkoutApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         request.data["workout"]["user"] = request.user.id
+
         workout_serializer = WorkoutSerializer(data=request.data.get("workout"))
-
-        if workout_serializer.is_valid():
-            workout = workout_serializer.save()
-            
-            exercises = request.data.get("exercises", [])
-            for exercise in exercises: 
-                exercise["workout"] = workout.id
-            exercise_serializer = ExerciseSerializer(data=exercises, many=True)
-
-            if exercise_serializer.is_valid():
-                exercise_serializer.save()
-                return Response(data={"message": "Workout successfully saved"}, status=status.HTTP_200_OK)
-            else: 
-                workout.delete()
-                return Response(data={"message": "Error creating exercises", "errors": exercise_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-        else:
+        if not workout_serializer.is_valid():
             return Response(data={"message": "Error creating workout", "errors": workout_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        workout = workout_serializer.save()
+
+        exercises = request.data.get("exercises", [])
+        for exercise in exercises: 
+            exercise["workout"] = workout.id
+
+        exercise_serializer = ExerciseSerializer(data=exercises, many=True)
+        if not exercise_serializer.is_valid():
+            workout.delete()
+            return Response(data={"message": "Error creating exercises", "errors": exercise_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        exercise_serializer.save()
+        return Response(data={"message": "Workout successfully saved"}, status=status.HTTP_200_OK)
         
     def get(self, request, *args, **kwargs):
         workout_id = request.data.get("id")
