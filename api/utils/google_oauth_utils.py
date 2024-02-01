@@ -2,7 +2,6 @@
 from django.conf import settings
 from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User
 from urllib.parse import urlencode
 from typing import Dict, Any
 import requests
