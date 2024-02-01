@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from urllib.parse import urlencode
 from typing import Dict, Any
 import requests
-from ..models.custom_user import CustomUser
+from api.models import CustomUser
 
 
 GOOGLE_ACCESS_TOKEN_OBTAIN_URL = 'https://accounts.google.com/o/oauth2/token'

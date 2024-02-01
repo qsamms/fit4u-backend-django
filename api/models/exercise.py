@@ -1,6 +1,6 @@
 from django.db import models
+from api.models import Workout
 from .external_exercise import ExternalExercise
-from .workout import Workout
 
 class Exercise(models.Model): 
     class Meta:
@@ -12,9 +12,9 @@ class Exercise(models.Model):
     volume = models.IntegerField(null=True, blank=True)
     workout = models.ForeignKey(Workout, on_delete=models.CASCADE)
     rating = models.IntegerField(null=False, blank=False)
-    datetime = models.DateTimeField(null=False, blank=False)
+    datetime = models.DateTimeField(null=True, blank=True)
     UNIT_CHOICES = [
         ('lbs', 'lbs'), ('kg', 'kg'), ('sec', 'sec'), ('min', 'min'), ('pounds', 'pounds'), ('kilograms', 'kilograms'), ('seconds', 'seconds'), ('minutes', 'minutes'), ('hours', 'hours'), ('hrs', 'hrs')
     ]
     unit = models.CharField(max_length=150, null=False, choices=UNIT_CHOICES)
-    externalExcercise = models.ForeignKey(ExternalExercise, on_delete=models.PROTECT)
+    external_exercise = models.ForeignKey(ExternalExercise, on_delete=models.PROTECT, null=True, blank=True)

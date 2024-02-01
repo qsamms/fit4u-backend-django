@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
-from ..models.custom_user import CustomUser
+from api.models import CustomUser
 from ..serializers.auth_serializer import GoogleAuthSerializer
 
 class GoogleLoginApi(APIView):
