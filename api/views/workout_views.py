@@ -1,4 +1,4 @@
-from rest_framework.views import APIView 
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from api.models import Workout, Exercise
@@ -6,6 +6,7 @@ from api.serializers import WorkoutSerializer
 from ..serializers.exercise_serializer import ExerciseSerializer
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+
 
 class WorkoutApiView(APIView):
     authentication_classes = [TokenAuthentication]
@@ -16,22 +17,36 @@ class WorkoutApiView(APIView):
 
         workout_serializer = WorkoutSerializer(data=request.data.get("workout"))
         if not workout_serializer.is_valid():
-            return Response(data={"message": "Error creating workout", "errors": workout_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                data={
+                    "message": "Error creating workout",
+                    "errors": workout_serializer.errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         workout = workout_serializer.save()
 
         exercises = request.data.get("exercises", [])
-        for exercise in exercises: 
+        for exercise in exercises:
             exercise["workout"] = workout.id
 
         exercise_serializer = ExerciseSerializer(data=exercises, many=True)
         if not exercise_serializer.is_valid():
             workout.delete()
-            return Response(data={"message": "Error creating exercises", "errors": exercise_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                data={
+                    "message": "Error creating exercises",
+                    "errors": exercise_serializer.errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         exercise_serializer.save()
-        return Response(data={"message": "Workout successfully saved"}, status=status.HTTP_200_OK)
-        
+        return Response(
+            data={"message": "Workout successfully saved"}, status=status.HTTP_200_OK
+        )
+
     def get(self, request, *args, **kwargs):
         workout_id = request.data.get("id")
 
@@ -45,8 +60,8 @@ class WorkoutApiView(APIView):
             workout_data["exercises"] = exercise_serializer.data
 
             return Response(data=workout_data, status=status.HTTP_200_OK)
-        
-        else: 
+
+        else:
             workouts = Workout.objects.filter(user=request.user.id).order_by("datetime")
             workout_serialier = WorkoutSerializer(workouts, many=True)
             workout_data = workout_serialier.data
@@ -58,4 +73,3 @@ class WorkoutApiView(APIView):
                 workout["exercises"] = exercise_serializer.data
 
             return Response(data=workout_data, status=status.HTTP_200_OK)
-

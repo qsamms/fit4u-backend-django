@@ -7,22 +7,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0001_initial'),
+        ("api", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='exercise',
-            name='externalExcercise',
+            model_name="exercise",
+            name="externalExcercise",
         ),
         migrations.AddField(
-            model_name='exercise',
-            name='external_exercise',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='api.externalexercise'),
+            model_name="exercise",
+            name="external_exercise",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="api.externalexercise",
+            ),
         ),
         migrations.AlterField(
-            model_name='exercise',
-            name='datetime',
+            model_name="exercise",
+            name="datetime",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]
