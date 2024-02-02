@@ -18,8 +18,7 @@ class WorkoutApiView(APIView):
         if not workout_serializer.is_valid():
             return Response(
                 data={
-                    "message": "Error creating workout",
-                    "errors": workout_serializer.errors,
+                    "error": "Error creating workout",
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -35,8 +34,7 @@ class WorkoutApiView(APIView):
             workout.delete()
             return Response(
                 data={
-                    "message": "Error creating exercises",
-                    "errors": exercise_serializer.errors,
+                    "error": "Error creating exercises",
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -67,13 +65,16 @@ class SingleWorkoutApiView(APIView):
     def get(self, request, *args, **kwargs):
         workout_id = kwargs.get("pk")
 
-        if workout_id:
-            workout = Workout.objects.get(id=workout_id)
-            workout_serialier = WorkoutSerializer(workout)
-            workout_data = workout_serialier.data
+        object_exists = Workout.objects.filter(pk=workout_id).exists()
+        if not object_exists:
+            return Response(data={"error": "A workout with that id does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        workout = Workout.objects.get(id=workout_id)
+        workout_serialier = WorkoutSerializer(workout)
+        workout_data = workout_serialier.data
 
-            exercises = Exercise.objects.filter(workout=workout.id)
-            exercise_serializer = ExerciseSerializer(exercises, many=True)
-            workout_data["exercises"] = exercise_serializer.data
+        exercises = Exercise.objects.filter(workout=workout.id)
+        exercise_serializer = ExerciseSerializer(exercises, many=True)
+        workout_data["exercises"] = exercise_serializer.data
 
-            return Response(data={"workout": workout_data}, status=status.HTTP_200_OK)
+        return Response(data={"workout": workout_data}, status=status.HTTP_200_OK)
