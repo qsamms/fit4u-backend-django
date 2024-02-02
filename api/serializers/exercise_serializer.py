@@ -11,4 +11,3 @@ class ExerciseSerializer(serializers.ModelSerializer):
             queryset=ExternalExercise.objects.all(), required=False
         )
         reps = serializers.IntegerField(required=False)
-        datetime = serializers.DateTimeField(required=False)

@@ -13,7 +13,6 @@ class Exercise(models.Model):
     volume = models.IntegerField(null=True, blank=True)
     workout = models.ForeignKey(Workout, on_delete=models.CASCADE)
     rating = models.IntegerField(null=False, blank=False)
-    datetime = models.DateTimeField(null=True, blank=True)
     UNIT_CHOICES = [
         ("lbs", "lbs"),
         ("kg", "kg"),
