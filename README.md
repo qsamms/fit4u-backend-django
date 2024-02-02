@@ -5,22 +5,7 @@ Clone the repo:
 git clone https://github.com/qsamms/fit4u-backend-django.git
 </pre>
 
-Create a virutal environemnt in the root directory: 
-<pre>
-python -m venv venv
-</pre>
-
-Activate the environment: 
-<pre>
-source /venv/bin/activate
-</pre>
-
-Install project dependencies: 
-<pre>
-pip install -r requirements.txt
-</pre>
-
-Easiest way to install MySQL is using homebrew, if you don't have it on your machine download here: 
+You'll need to install MySQL and start it up before running the server, easiest way to install MySQL (if you're on macOS) is using homebrew, if you don't have it on your machine download here: 
 <pre>
 https://brew.sh/
 </pre>
@@ -35,17 +20,44 @@ If you haven't before, you'll need to set up a root user/password with MySQL, on
 brew services start mysql
 </pre>
 
+If you're on linux, you can follow these instructions here to install, setup root user, and start mysql. If you're developing on windows then idk what to tell you LOL
+<pre>
+https://dev.mysql.com/doc/refman/8.0/en/linux-installation.html
+</pre>
+
+Create a virutal environemnt in the root directory: 
+<pre>
+python -m venv venv
+</pre>
+
+Activate the environment: 
+<pre>
+source /venv/bin/activate
+</pre>
+
+Install project dependencies: 
+<pre>
+python -m pip install -r requirements.txt
+</pre>
+
 Then you'll have to add the MySQL user and password environment variables so they aren't plaintext in the code.
-To do this, add the following lines to the `activate` file in the /venv/bin folder:
+To do this, add the following lines to the `activate` script in the /venv/bin director
 <pre>
 export MYSQL_USERNAME="YOUR_MYSQL_USERNAME"
 export MYSQL_PASSWORD="YOUR_MYSQL_PASSWORD"
 </pre>
 
+You'll also need to add the google oauth client id and client secret in order to allow users to sign in with google, 
+add these values as environment variables in the `activate` script in /venv/bin directory 
+<pre>
+export GOOGLE_CLIENT_ID="YOUR_GOOGLE_CLIENT_ID"
+export GOOGLE_CLIENT_SECRET="YOUR_GOOGLE_CLIENT_SECRET"
+</pre>
+
 To verify everything has worked correctly run the following commands: 
 <pre>
-python manage.py runserver
 python manage.py migrate
+python manage.py runserver
 </pre>
 
 The migrations should be correctly applied and the server should start on port 8000
