@@ -65,7 +65,6 @@ def get_user_data(validated_data):
 
     # Creates user in DB if first time login
     CustomUser.objects.get_or_create(
-        username=user_data["email"],
         email=user_data["email"],
         first_name=user_data.get("given_name"),
         last_name=user_data.get("family_name"),

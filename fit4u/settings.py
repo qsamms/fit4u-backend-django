@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "djangorestframework_camel_case",
     "api",
     "background_task",
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
@@ -61,6 +62,10 @@ REST_FRAMEWORK = {
     ]
 }
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
+]
 BASE_APP_URL = "http://localhost:5173"
 BASE_API_URL = "http://localhost:8000"
 GOOGLE_OAUTH2_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
