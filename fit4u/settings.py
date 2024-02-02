@@ -47,25 +47,22 @@ INSTALLED_APPS = [
     "djangorestframework_camel_case",
     "api",
     "background_task",
-    'corsheaders',
+    "corsheaders",
 ]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
     ],
-    'DEFAULT_RENDERER_CLASSES': [
-        'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+    "DEFAULT_RENDERER_CLASSES": [
+        "djangorestframework_camel_case.render.CamelCaseJSONRenderer",
     ],
-    'DEFAULT_PARSER_CLASSES': [
-        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
-    ]
+    "DEFAULT_PARSER_CLASSES": [
+        "djangorestframework_camel_case.parser.CamelCaseJSONParser",
+    ],
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173"
-]
+CORS_ALLOWED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 BASE_APP_URL = "http://localhost:5173"
 BASE_API_URL = "http://localhost:8000"
 GOOGLE_OAUTH2_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
@@ -80,7 +77,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    'djangorestframework_camel_case.middleware.CamelCaseMiddleWare',
+    "djangorestframework_camel_case.middleware.CamelCaseMiddleWare",
 ]
 
 ROOT_URLCONF = "fit4u.urls"

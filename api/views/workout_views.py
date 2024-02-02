@@ -47,7 +47,25 @@ class WorkoutApiView(APIView):
         )
 
     def get(self, request, *args, **kwargs):
-        workout_id = request.data.get("id")
+        workouts = Workout.objects.filter(user=request.user.id).order_by("-datetime")
+        workout_serialier = WorkoutSerializer(workouts, many=True)
+        workout_data = workout_serialier.data
+
+        for workout in workout_data:
+            workout_id = workout.get("id")
+            exercises = Exercise.objects.filter(workout=workout_id)
+            exercise_serializer = ExerciseSerializer(exercises, many=True)
+            workout["exercises"] = exercise_serializer.data
+
+        return Response(data={"workouts": workout_data}, status=status.HTTP_200_OK)
+
+
+class SingleWorkoutApiView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        workout_id = kwargs.get("pk")
 
         if workout_id:
             workout = Workout.objects.get(id=workout_id)
@@ -59,16 +77,3 @@ class WorkoutApiView(APIView):
             workout_data["exercises"] = exercise_serializer.data
 
             return Response(data={"workout": workout_data}, status=status.HTTP_200_OK)
-
-        else:
-            workouts = Workout.objects.filter(user=request.user.id).order_by("-datetime")
-            workout_serialier = WorkoutSerializer(workouts, many=True)
-            workout_data = workout_serialier.data
-
-            for workout in workout_data:
-                workout_id = workout.get("id")
-                exercises = Exercise.objects.filter(workout=workout_id)
-                exercise_serializer = ExerciseSerializer(exercises, many=True)
-                workout["exercises"] = exercise_serializer.data
-
-            return Response(data={"workouts": workout_data}, status=status.HTTP_200_OK)
