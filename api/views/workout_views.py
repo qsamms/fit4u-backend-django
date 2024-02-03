@@ -45,36 +45,31 @@ class WorkoutApiView(APIView):
         )
 
     def get(self, request, *args, **kwargs):
-        workouts = Workout.objects.filter(user=request.user.id).order_by("-datetime")
-        workout_serialier = WorkoutSerializer(workouts, many=True)
-        workout_data = workout_serialier.data
-
-        for workout in workout_data:
-            workout_id = workout.get("id")
-            exercises = Exercise.objects.filter(workout=workout_id)
-            exercise_serializer = ExerciseSerializer(exercises, many=True)
-            workout["exercises"] = exercise_serializer.data
-
-        return Response(data={"workouts": workout_data}, status=status.HTTP_200_OK)
-
-
-class SingleWorkoutApiView(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, *args, **kwargs):
         workout_id = kwargs.get("pk")
 
-        object_exists = Workout.objects.filter(pk=workout_id).exists()
-        if not object_exists:
-            return Response(data={"error": "A workout with that id does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        workout = Workout.objects.get(id=workout_id)
-        workout_serialier = WorkoutSerializer(workout)
-        workout_data = workout_serialier.data
+        if workout_id:
+            object_exists = Workout.objects.filter(pk=workout_id).exists()
+            if not object_exists:
+                return Response(data={"error": "A workout with that id does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            workout = Workout.objects.get(id=workout_id)
+            workout_serialier = WorkoutSerializer(workout)
+            workout_data = workout_serialier.data
 
-        exercises = Exercise.objects.filter(workout=workout.id)
-        exercise_serializer = ExerciseSerializer(exercises, many=True)
-        workout_data["exercises"] = exercise_serializer.data
+            exercises = Exercise.objects.filter(workout=workout.id)
+            exercise_serializer = ExerciseSerializer(exercises, many=True)
+            workout_data["exercises"] = exercise_serializer.data
 
-        return Response(data={"workout": workout_data}, status=status.HTTP_200_OK)
+            return Response(data={"workout": workout_data}, status=status.HTTP_200_OK)
+        else:
+            workouts = Workout.objects.filter(user=request.user.id).order_by("-datetime")
+            workout_serialier = WorkoutSerializer(workouts, many=True)
+            workout_data = workout_serialier.data
+
+            for workout in workout_data:
+                workout_id = workout.get("id")
+                exercises = Exercise.objects.filter(workout=workout_id)
+                exercise_serializer = ExerciseSerializer(exercises, many=True)
+                workout["exercises"] = exercise_serializer.data
+
+            return Response(data={"workouts": workout_data}, status=status.HTTP_200_OK)
