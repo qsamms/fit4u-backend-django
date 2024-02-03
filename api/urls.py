@@ -5,11 +5,15 @@ from api.views import (
     WorkoutApiView,
     LogoutApiView,
     UpdateExternalExerciseApiView,
+    LoginApiView,
+    SignUpApiView,
 )
 
 urlpatterns = [
     path("me/", UserApiView.as_view(), name="get_user"),
     path("auth/login/google/", GoogleLoginApi.as_view(), name="google_oauth"),
+    path("login/", LoginApiView.as_view(), name="login"),
+    path("sign-up/", SignUpApiView.as_view(), name="sign-up"),
     path("logout/", LogoutApiView.as_view(), name="logout"),
     path("workout/", WorkoutApiView.as_view(), name="workouts"),
     path("workout/<int:pk>/", WorkoutApiView.as_view(), name="single_workout"),

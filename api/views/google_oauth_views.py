@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 from api.models import CustomUser
 from api.serializers import GoogleAuthSerializer
-from api.utils import get_user_data
+from api.utils import get_or_create_user
 
 
 class GoogleLoginApi(APIView):
@@ -14,9 +14,8 @@ class GoogleLoginApi(APIView):
         auth_serializer.is_valid(raise_exception=True)
 
         validated_data = auth_serializer.validated_data
-        user_data = get_user_data(validated_data)
+        user, _ = get_or_create_user(validated_data)
 
-        user = CustomUser.objects.get(email=user_data["email"])
         token, _ = Token.objects.get_or_create(user=user)
 
-        return redirect(f"{settings.BASE_APP_URL}?token={token}")
+        return redirect(f"{settings.BASE_APP_URL}?token={token.key}")

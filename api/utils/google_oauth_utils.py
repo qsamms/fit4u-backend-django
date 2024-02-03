@@ -49,7 +49,7 @@ def google_get_user_info(access_token: str) -> Dict[str, Any]:
     return response.json()
 
 
-def get_user_data(validated_data):
+def get_or_create_user(validated_data):
     domain = settings.BASE_API_URL
     redirect_uri = f"{domain}/api/auth/login/google/"
 
@@ -64,15 +64,10 @@ def get_user_data(validated_data):
     user_data = google_get_user_info(access_token=access_token)
 
     # Creates user in DB if first time login
-    CustomUser.objects.get_or_create(
+    return CustomUser.objects.get_or_create(
         email=user_data["email"],
+        username=user_data["email"],
         first_name=user_data.get("given_name"),
         last_name=user_data.get("family_name"),
+        is_oauth=True,
     )
-
-    profile_data = {
-        "email": user_data["email"],
-        "first_name": user_data.get("given_name"),
-        "last_name": user_data.get("family_name"),
-    }
-    return profile_data

@@ -1,5 +1,5 @@
-from .google_login import GoogleLoginApi
-from .logout_view import LogoutApiView
+from .google_oauth_views import GoogleLoginApi
 from .user_views import UserApiView
 from .workout_views import WorkoutApiView
-from .update_external_exercises import UpdateExternalExerciseApiView
+from .external_exercise_views import UpdateExternalExerciseApiView
+from .auth_views import LoginApiView, SignUpApiView, LogoutApiView

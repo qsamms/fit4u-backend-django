@@ -50,8 +50,11 @@ class WorkoutApiView(APIView):
         if workout_id:
             object_exists = Workout.objects.filter(pk=workout_id).exists()
             if not object_exists:
-                return Response(data={"error": "A workout with that id does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-            
+                return Response(
+                    data={"error": "A workout with that id does not exist"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             workout = Workout.objects.get(id=workout_id)
             workout_serialier = WorkoutSerializer(workout)
             workout_data = workout_serialier.data
@@ -62,7 +65,9 @@ class WorkoutApiView(APIView):
 
             return Response(data={"workout": workout_data}, status=status.HTTP_200_OK)
         else:
-            workouts = Workout.objects.filter(user=request.user.id).order_by("-datetime")
+            workouts = Workout.objects.filter(user=request.user.id).order_by(
+                "-datetime"
+            )
             workout_serialier = WorkoutSerializer(workouts, many=True)
             workout_data = workout_serialier.data
 
