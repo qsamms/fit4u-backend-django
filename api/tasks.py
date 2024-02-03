@@ -9,8 +9,8 @@ import requests
 def update_external_exercises(muscle_groups, types):
     ExternalExercise.objects.all().delete()
 
-    for type in types:
-        for muscle_group in muscle_groups:
+    for muscle_group in muscle_groups:
+        for type in types:
             response = requests.get(
                 f"https://api.api-ninjas.com/v1/exercises?type={type}&muscle={muscle_group}",
                 headers={"X-API-KEY": f"{settings.API_NINJAS_KEY}"},

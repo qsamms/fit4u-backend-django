@@ -63,6 +63,12 @@ def get_or_create_user(validated_data):
     access_token = google_get_access_token(code=code, redirect_uri=redirect_uri)
     user_data = google_get_user_info(access_token=access_token)
 
+    if CustomUser.objects.filter(email=user_data.get("email"), is_oauth=False).exists():
+        return (
+            CustomUser.objects.get(email=user_data.get("email"), is_oauth=False),
+            None,
+        )
+
     # Creates user in DB if first time login
     return CustomUser.objects.get_or_create(
         email=user_data["email"],
