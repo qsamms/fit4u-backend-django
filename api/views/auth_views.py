@@ -5,12 +5,20 @@ from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from api.models import CustomUser
+from api.serializers import LoginSerializer, SignUpSerializer
 
 
 class LoginApiView(APIView):
     def post(self, request, *args, **kwargs):
-        email = request.data.get("email", "")
-        password = request.data.get("password", "")
+        serializer = LoginSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                data={"error": "Both email and password fields are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        email = serializer.validated_data.get("email", "")
+        password = serializer.validated_data.get("password", "")
 
         if CustomUser.objects.filter(
             email=email, password=password, is_oauth=False
@@ -33,10 +41,17 @@ class LoginApiView(APIView):
 
 class SignUpApiView(APIView):
     def post(self, request, *args, **kwargs):
-        email = request.data.get("email", "")
-        password = request.data.get("password", "")
-        first_name = request.data.get("first_name", "")
-        last_name = request.data.get("last_name", "")
+        serializer = SignUpSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                data={"error": "All sign-up form fields are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        email = serializer.validated_data.get("email", "")
+        password = serializer.validated_data.get("password", "")
+        first_name = serializer.validated_data.get("first_name", "")
+        last_name = serializer.validated_data.get("last_name", "")
 
         if CustomUser.objects.filter(email=email).exists():
             return Response(
@@ -63,9 +78,7 @@ class LogoutApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        user = request.user
-        token = Token.objects.get(user=user)
-        token.delete()
+        Token.objects.get(user=request.user).delete()
         return Response(
             data={"message": "Logout successful"}, status=status.HTTP_200_OK
         )
