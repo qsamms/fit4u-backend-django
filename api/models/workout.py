@@ -8,3 +8,4 @@ class Workout(models.Model):
 
     datetime = models.DateTimeField(null=False, blank=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    name = models.CharField(null=False, blank=False, max_length=150, default="")

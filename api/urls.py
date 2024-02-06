@@ -18,8 +18,8 @@ urlpatterns = [
     path("workout/", WorkoutApiView.as_view(), name="workouts"),
     path("workout/<int:pk>/", WorkoutApiView.as_view(), name="single_workout"),
     path(
-        "update-external-exercises/",
+        "external-exercises/",
         UpdateExternalExerciseApiView.as_view(),
-        name="update_external_exercises",
+        name="external_exercises",
     ),
 ]

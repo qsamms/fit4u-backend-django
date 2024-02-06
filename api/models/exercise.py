@@ -8,11 +8,8 @@ class Exercise(models.Model):
         app_label = "api"
 
     name = models.CharField(max_length=150, null=False)
-    set_number = models.IntegerField(null=False)
-    reps = models.IntegerField(null=True, blank=True)
-    volume = models.IntegerField(null=True, blank=True)
+    sets = models.JSONField(null=False, default=dict())
     workout = models.ForeignKey(Workout, on_delete=models.CASCADE)
-    rating = models.IntegerField(null=False, blank=False)
     UNIT_CHOICES = [
         ("lbs", "lbs"),
         ("kg", "kg"),

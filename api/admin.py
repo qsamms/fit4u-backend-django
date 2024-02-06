@@ -15,7 +15,7 @@ class CustomUserAdmin(UserAdmin):
 
 
 class ExerciseAdmin(admin.ModelAdmin):
-    list_display = ("name", "workout", "set_number", "external_exercise")
+    list_display = ("name", "workout", "external_exercise")
     search_fields = (
         "name",
         "set_number",

@@ -38,27 +38,22 @@ class UpdateExternalExerciseApiView(APIView):
             "traps",
             "triceps",
         ]
-        types = ["strength", "cardio", "stretching"]
-        responses = []
+        difficulties = ["beginner", "intermediate", "expert"]
+        exercises = []
 
         for muscle_group in muscle_groups:
-            for type in types:
+            for difficulty in difficulties:
                 response = requests.get(
-                    f"https://api.api-ninjas.com/v1/exercises?type={type}&muscle={muscle_group}",
+                    f"https://api.api-ninjas.com/v1/exercises?type=strength&muscle={muscle_group}&difficulty={difficulty}",
                     headers={"X-API-KEY": f"{settings.API_NINJAS_KEY}"},
                 )
-                if response.ok:
-                    names = set()
-                    for exercise in response.json():
-                        name = exercise.get("name")
-                        if name not in names:
-                            responses.append(exercise)
-                        names.add(name)
-                else:
+                if response.ok and len(response.json()) > 0:
+                    exercises.append(response.json()[0])
+                elif not response.ok:
                     return Response(data={"error": response.json()}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ExternalExerciseSerializer(
-                    data=responses, many=True
+                    data=exercises, many=True
                 )
         if not serializer.is_valid():
             return
@@ -67,3 +62,9 @@ class UpdateExternalExerciseApiView(APIView):
         return Response(
             data={"message": "Data saved successfully"}, status=status.HTTP_200_OK
         )
+    
+    def get(self, request, *args, **kwargs): 
+        exercises = ExternalExercise.objects.all()
+        serializer = ExternalExerciseSerializer(exercises, many=True)
+        return Response(data={"exercises": serializer.data}, status=status.HTTP_200_OK)
+
