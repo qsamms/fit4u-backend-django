@@ -15,6 +15,10 @@ class UpdateExternalExerciseApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        # Getting all the exercises from api ninjas and creating the objects in db takes a long time, so 
+        # it's normal for this view to take > 20s to return a response. Could move this logic to a background task 
+        # but it's unnecessary since this data is collected once and read only then on. 
+        # Need the api ninjas key in your activate script in order to acess the exercises api  
         ExternalExercise.objects.all().delete()
         muscle_groups = [
             "abdominals",
@@ -35,6 +39,7 @@ class UpdateExternalExerciseApiView(APIView):
             "triceps",
         ]
         types = ["strength", "cardio", "stretching"]
+        responses = []
 
         for muscle_group in muscle_groups:
             for type in types:
@@ -42,20 +47,22 @@ class UpdateExternalExerciseApiView(APIView):
                     f"https://api.api-ninjas.com/v1/exercises?type={type}&muscle={muscle_group}",
                     headers={"X-API-KEY": f"{settings.API_NINJAS_KEY}"},
                 )
-                names = set()
-                filtered_response = []
-                for data in response.json():
-                    name = data.get("name")
-                    if name not in names:
-                        filtered_response.append(data)
-                    names.add(name)
+                if response.ok:
+                    names = set()
+                    for exercise in response.json():
+                        name = exercise.get("name")
+                        if name not in names:
+                            responses.append(exercise)
+                        names.add(name)
+                else:
+                    return Response(data={"error": response.json()}, status=status.HTTP_400_BAD_REQUEST)
 
-                serializer = ExternalExerciseSerializer(
-                    data=filtered_response, many=True
+        serializer = ExternalExerciseSerializer(
+                    data=responses, many=True
                 )
-                if not serializer.is_valid():
-                    return
-                serializer.save()
+        if not serializer.is_valid():
+            return
+        serializer.save()
 
         return Response(
             data={"message": "Data saved successfully"}, status=status.HTTP_200_OK
