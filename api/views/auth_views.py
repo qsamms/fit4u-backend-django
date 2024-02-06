@@ -82,3 +82,25 @@ class LogoutApiView(APIView):
         return Response(
             data={"message": "Logout successful"}, status=status.HTTP_200_OK
         )
+
+
+class ChangePasswordView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        old_password = request.data.get("old_password")
+        new_password = request.data.get("new_password")
+        user = request.user
+
+        if old_password != user.password:
+            return Response(
+                data={"error": "old password does not match"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user.password = new_password
+        user.save()
+        return Response(
+            data={"message": "user updated successfully"}, status=status.HTTP_200_OK
+        )

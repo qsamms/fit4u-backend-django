@@ -10,15 +10,15 @@ from api.models import ExternalExercise
 import requests
 
 
-class UpdateExternalExerciseApiView(APIView):
+class ExternalExerciseApiView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        # Getting all the exercises from api ninjas and creating the objects in db takes a long time, so 
-        # it's normal for this view to take > 20s to return a response. Could move this logic to a background task 
-        # but it's unnecessary since this data is collected once and read only then on. 
-        # Need the api ninjas key in your activate script in order to acess the exercises api  
+        # Getting all the exercises from api ninjas and creating the objects in db takes a long time, so
+        # it's normal for this view to take > 20s to return a response. Could move this logic to a background task
+        # but it's unnecessary since this data is collected once and read only then on.
+        # Need the api ninjas key in your activate script in order to acess the exercises api
         ExternalExercise.objects.all().delete()
         muscle_groups = [
             "abdominals",
@@ -50,11 +50,12 @@ class UpdateExternalExerciseApiView(APIView):
                 if response.ok and len(response.json()) > 0:
                     exercises.append(response.json()[0])
                 elif not response.ok:
-                    return Response(data={"error": response.json()}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(
+                        data={"error": response.json()},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
-        serializer = ExternalExerciseSerializer(
-                    data=exercises, many=True
-                )
+        serializer = ExternalExerciseSerializer(data=exercises, many=True)
         if not serializer.is_valid():
             return
         serializer.save()
@@ -62,9 +63,8 @@ class UpdateExternalExerciseApiView(APIView):
         return Response(
             data={"message": "Data saved successfully"}, status=status.HTTP_200_OK
         )
-    
-    def get(self, request, *args, **kwargs): 
+
+    def get(self, request, *args, **kwargs):
         exercises = ExternalExercise.objects.all()
         serializer = ExternalExerciseSerializer(exercises, many=True)
         return Response(data={"exercises": serializer.data}, status=status.HTTP_200_OK)
-

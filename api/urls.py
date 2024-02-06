@@ -4,9 +4,10 @@ from api.views import (
     UserApiView,
     WorkoutApiView,
     LogoutApiView,
-    UpdateExternalExerciseApiView,
+    ExternalExerciseApiView,
     LoginApiView,
     SignUpApiView,
+    ChangePasswordView,
 )
 
 urlpatterns = [
@@ -15,11 +16,12 @@ urlpatterns = [
     path("login/", LoginApiView.as_view(), name="login"),
     path("sign-up/", SignUpApiView.as_view(), name="sign-up"),
     path("logout/", LogoutApiView.as_view(), name="logout"),
+    path("change-password/", ChangePasswordView.as_view(), name="change_password"),
     path("workout/", WorkoutApiView.as_view(), name="workouts"),
     path("workout/<int:pk>/", WorkoutApiView.as_view(), name="single_workout"),
     path(
         "external-exercises/",
-        UpdateExternalExerciseApiView.as_view(),
+        ExternalExerciseApiView.as_view(),
         name="external_exercises",
     ),
 ]
