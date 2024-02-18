@@ -30,11 +30,16 @@ class WorkoutAdmin(admin.ModelAdmin):
 
 
 class ExternalExerciseAdmin(admin.ModelAdmin):
-    list_display = ("name", "type", "muscle", "equipment", "difficulty")
-    search_fields = ("name", "type", "muscle", "equipment", "difficulty")
+    list_display = ("name", "type", "muscle", "equipment", "difficulty", "favorite")
+    search_fields = ("name", "type", "muscle", "equipment", "difficulty", "favorite")
+
+
+class WorkoutPlanAdmin(admin.ModelAdmin):
+    list_display = ("name", "user")
 
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Exercise, ExerciseAdmin)
 admin.site.register(Workout, WorkoutAdmin)
 admin.site.register(ExternalExercise, ExternalExerciseAdmin)
+admin.site.register(WorkoutPlan, WorkoutPlanAdmin)

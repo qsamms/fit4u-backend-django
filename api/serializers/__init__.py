@@ -2,3 +2,4 @@ from .auth_serializers import GoogleAuthSerializer, LoginSerializer, SignUpSeria
 from .workout_serializer import WorkoutSerializer
 from .exercise_serializer import ExerciseSerializer
 from .external_exercise_serializer import ExternalExerciseSerializer
+from .workout_plan_serializers import WorkoutPlanSerializer

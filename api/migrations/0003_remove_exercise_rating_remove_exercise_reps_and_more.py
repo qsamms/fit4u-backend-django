@@ -6,34 +6,34 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0002_rename_exercise_type_externalexercise_type_and_more'),
+        ("api", "0002_rename_exercise_type_externalexercise_type_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='exercise',
-            name='rating',
+            model_name="exercise",
+            name="rating",
         ),
         migrations.RemoveField(
-            model_name='exercise',
-            name='reps',
+            model_name="exercise",
+            name="reps",
         ),
         migrations.RemoveField(
-            model_name='exercise',
-            name='set_number',
+            model_name="exercise",
+            name="set_number",
         ),
         migrations.RemoveField(
-            model_name='exercise',
-            name='volume',
+            model_name="exercise",
+            name="volume",
         ),
         migrations.AddField(
-            model_name='exercise',
-            name='sets',
+            model_name="exercise",
+            name="sets",
             field=models.JSONField(default={}),
         ),
         migrations.AddField(
-            model_name='workout',
-            name='name',
-            field=models.CharField(default='', max_length=150),
+            model_name="workout",
+            name="name",
+            field=models.CharField(default="", max_length=150),
         ),
     ]

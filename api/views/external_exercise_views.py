@@ -15,10 +15,8 @@ class ExternalExerciseApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        # Getting all the exercises from api ninjas and creating the objects in db takes a long time, so
-        # it's normal for this view to take > 20s to return a response. Could move this logic to a background task
-        # but it's unnecessary since this data is collected once and read only then on.
-        # Need the api ninjas key in your activate script in order to acess the exercises api
+        # Need the api ninjas key in env to acess the exercises api
+        # It's normal for this view to take a long time, http response may timeout
         ExternalExercise.objects.all().delete()
         muscle_groups = [
             "abdominals",
@@ -67,4 +65,29 @@ class ExternalExerciseApiView(APIView):
     def get(self, request, *args, **kwargs):
         exercises = ExternalExercise.objects.all()
         serializer = ExternalExerciseSerializer(exercises, many=True)
-        return Response(data={"exercises": serializer.data}, status=status.HTTP_200_OK)
+
+        favorite_exercises = ExternalExercise.objects.filter(favorite=True)
+        favorite_serializer = ExternalExerciseSerializer(favorite_exercises, many=True)
+
+        return Response(
+            data={"exercises": serializer.data, "favorites": favorite_serializer.data},
+            status=status.HTTP_200_OK,
+        )
+
+
+class FavoriteExerciseApiView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        workout_id = request.data.get("id")
+
+        exercise = ExternalExercise.objects.get(id=workout_id)
+        if exercise:
+            exercise.favorite = not exercise.favorite
+            exercise.save()
+            return Response(data={"success": True}, status=status.HTTP_200_OK)
+
+        return Response(
+            data={"message": "exercise not found"}, status=status.HTTP_400_BAD_REQUEST
+        )

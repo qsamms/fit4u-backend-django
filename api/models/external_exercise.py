@@ -12,3 +12,4 @@ class ExternalExercise(models.Model):
     equipment = models.CharField(max_length=150, null=False)
     difficulty = models.CharField(max_length=150, null=False)
     instructions = models.TextField(null=True, blank=True)
+    favorite = models.BooleanField(null=False, default=False)

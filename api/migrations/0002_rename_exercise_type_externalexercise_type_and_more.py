@@ -7,40 +7,45 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0001_initial'),
+        ("api", "0001_initial"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='externalexercise',
-            old_name='exercise_type',
-            new_name='type',
+            model_name="externalexercise",
+            old_name="exercise_type",
+            new_name="type",
         ),
         migrations.RemoveField(
-            model_name='exercise',
-            name='datetime',
+            model_name="exercise",
+            name="datetime",
         ),
         migrations.RemoveField(
-            model_name='exercise',
-            name='externalExcercise',
+            model_name="exercise",
+            name="externalExcercise",
         ),
         migrations.AddField(
-            model_name='customuser',
-            name='is_oauth',
+            model_name="customuser",
+            name="is_oauth",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='exercise',
-            name='external_exercise',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='api.externalexercise'),
+            model_name="exercise",
+            name="external_exercise",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="api.externalexercise",
+            ),
         ),
         migrations.AlterField(
-            model_name='externalexercise',
-            name='instructions',
+            model_name="externalexercise",
+            name="instructions",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterUniqueTogether(
-            name='externalexercise',
-            unique_together={('name', 'muscle')},
+            name="externalexercise",
+            unique_together={("name", "muscle")},
         ),
     ]
