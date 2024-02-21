@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from api.serializers import WorkoutPlanSerializer
-from api.models import WorkoutPlan
+from api.models import WorkoutPlan, ExternalExercise
 
 
 class WorkoutPlanApiView(APIView):
@@ -14,7 +14,11 @@ class WorkoutPlanApiView(APIView):
     def post(self, request, *args, **kwargs):
         request.data["workout_plan"]["user"] = request.user.id
 
-        print(request.data.get("workout_plan"))
+        exercise_ids = set(request.data["workout_plan"].get("exercises", []))
+        if not len(ExternalExercise.objects.filter(id__in=exercise_ids)) == len(exercise_ids):
+            return Response(
+                data={"error": "One or more provided exercise ids do not exist"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         plan_serializer = WorkoutPlanSerializer(data=request.data.get("workout_plan"))
         if not plan_serializer.is_valid():
@@ -31,6 +35,20 @@ class WorkoutPlanApiView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+    def patch(self, request, *args, **kwargs):
+        plan_id = kwargs.get("pk", None)
+        request.data["workout_plan"]["user"] = request.user.id
+
+        instance = WorkoutPlan.objects.get(pk=plan_id)
+        serializer = WorkoutPlanSerializer(instance, data=request.data.get("workout_plan"))
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data={"message": f"Workout plan {plan_id} updated successfully"}, status=status.HTTP_200_OK)
+
+        return Response(data={"error": "invalid data"}, status=status.HTTP_400_BAD_REQUEST)
+
 
     def get(self, request, *args, **kwargs):
         plan_id = kwargs.get("pk")

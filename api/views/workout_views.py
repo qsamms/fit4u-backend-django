@@ -12,9 +12,12 @@ class WorkoutApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        data = request.data
+        if "workout" not in data:
+            return Response(data={"error": "invalid request body"}, status=status.HTTP_400_BAD_REQUEST)
         request.data["workout"]["user"] = request.user.id
 
-        workout_serializer = WorkoutSerializer(data=request.data.get("workout"))
+        workout_serializer = WorkoutSerializer(data=data.get("workout"))
         if not workout_serializer.is_valid():
             return Response(
                 data={
@@ -25,7 +28,7 @@ class WorkoutApiView(APIView):
 
         workout = workout_serializer.save()
 
-        exercises = request.data["workout"].get("exercises", [])
+        exercises = data["workout"].get("exercises", [])
         for exercise in exercises:
             exercise["workout"] = workout.id
 
