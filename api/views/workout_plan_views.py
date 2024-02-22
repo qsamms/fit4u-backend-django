@@ -25,7 +25,7 @@ class WorkoutPlanApiView(APIView):
             )
         data["workout_plan"]["user"] = request.user.id
 
-        exercise_ids = set(request.data["workout_plan"].get("exercises", []))
+        exercise_ids = set(data["workout_plan"].get("exercises", []))
         if not len(ExternalExercise.objects.filter(id__in=exercise_ids)) == len(
             exercise_ids
         ):
@@ -34,7 +34,7 @@ class WorkoutPlanApiView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        plan_serializer = WorkoutPlanSerializer(data=request.data.get("workout_plan"))
+        plan_serializer = WorkoutPlanSerializer(data=data.get("workout_plan"))
         if not plan_serializer.is_valid():
             return Response(
                 data={
@@ -52,12 +52,16 @@ class WorkoutPlanApiView(APIView):
 
     def patch(self, request, *args, **kwargs):
         plan_id = kwargs.get("pk", None)
-        request.data["workout_plan"]["user"] = request.user.id
+        data = request.data
+        if not check_required_fields(data, required_fields=["workout_plan"]):
+            return Response(
+                data={"error": "invalid request body"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
+        data["workout_plan"]["user"] = request.user.id
         instance = WorkoutPlan.objects.get(pk=plan_id)
-        serializer = WorkoutPlanSerializer(
-            instance, data=request.data.get("workout_plan")
-        )
+        serializer = WorkoutPlanSerializer(instance, data=data.get("workout_plan"))
 
         if serializer.is_valid():
             serializer.save()

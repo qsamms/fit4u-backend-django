@@ -29,7 +29,7 @@ class WorkoutApiView(APIView):
                 data={"error": "invalid request body"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        request.data["workout"]["user"] = request.user.id
+        data["workout"]["user"] = request.user.id
 
         workout_serializer = WorkoutSerializer(data=data.get("workout"))
         if not workout_serializer.is_valid():
