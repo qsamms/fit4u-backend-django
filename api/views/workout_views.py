@@ -1,10 +1,12 @@
+from django.shortcuts import get_object_or_404, get_list_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from api.models import Workout, Exercise
+from api.models import Workout, Exercise, ExternalExercise
 from api.serializers import WorkoutSerializer, ExerciseSerializer
+from api.utils import check_required_fields
 
 
 class WorkoutApiView(APIView):
@@ -13,8 +15,20 @@ class WorkoutApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         data = request.data
-        if "workout" not in data:
-            return Response(data={"error": "invalid request body"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if (
+            not check_required_fields(data, required_fields=["workout"])
+            or not check_required_fields(
+                data["workout"], required_fields=["name", "datetime", "exercises"]
+            )
+            or not check_required_fields(
+                data["workout"]["exercises"], required_fields=["name", "unit", "sets"]
+            )
+        ):
+            return Response(
+                data={"error": "invalid request body"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         request.data["workout"]["user"] = request.user.id
 
         workout_serializer = WorkoutSerializer(data=data.get("workout"))
@@ -47,8 +61,64 @@ class WorkoutApiView(APIView):
             data={"message": "Workout successfully saved"}, status=status.HTTP_200_OK
         )
 
-    def get(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
+        data = request.data
+        if (
+            not check_required_fields(data, required_fields=["workout"])
+            or not check_required_fields(
+                data["workout"], required_fields=["name", "datetime", "exercises"]
+            )
+            or not check_required_fields(
+                data["workout"]["exercises"], required_fields=["name", "unit", "sets"]
+            )
+        ):
+            return Response(
+                data={"error": "invalid request body"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        data["workout"]["user"] = request.user.id
         workout_id = kwargs.get("pk")
+
+        for x in data["workout"]["exercises"]:
+            x["workout"] = workout_id
+
+        if workout_id:
+            instance = get_object_or_404(Workout, id=workout_id)
+            serializer = WorkoutSerializer(instance, data=data.get("workout"))
+
+            if not serializer.is_valid():
+                return Response(
+                    data={"error": "error updating workout"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            serializer.save()
+
+            exercise_json = data.get("workout").get("exercises")
+            exercise_dict = {x["id"]: x for x in exercise_json}
+            exercises = get_list_or_404(
+                Exercise, id__in=[x["id"] for x in exercise_json]
+            )
+
+            for exercise in exercises:
+                json = exercise_dict.get(exercise.id)
+                ee = json.get("external_exercise", exercise.external_exercise)
+                if isinstance(ee, int):
+                    ee = ExternalExercise.objects.get(id=ee)
+                exercise.external_exercise = ee
+                exercise.name = json.get("name", exercise.name)
+                exercise.unit = json.get("unit", exercise.unit)
+                exercise.sets = json.get("sets", exercise.sets)
+                exercise.save()
+
+            return Response(data={"message": "workout successfully updated"})
+
+        return Response(
+            data={"error": "error updating exercises"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def get(self, request, *args, **kwargs):
+        workout_id = kwargs.get("pk", None)
 
         if workout_id:
             object_exists = Workout.objects.filter(pk=workout_id).exists()

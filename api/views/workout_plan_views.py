@@ -5,6 +5,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from api.serializers import WorkoutPlanSerializer
 from api.models import WorkoutPlan, ExternalExercise
+from api.utils import check_required_fields
 
 
 class WorkoutPlanApiView(APIView):
@@ -12,12 +13,25 @@ class WorkoutPlanApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        request.data["workout_plan"]["user"] = request.user.id
+        data = request.data
+        if not check_required_fields(
+            data, required_fields=["workout_plan"]
+        ) or not check_required_fields(
+            data["workout_plan"], required_fields=["name", "exercises"]
+        ):
+            return Response(
+                data={"error": "invalid request body"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        data["workout_plan"]["user"] = request.user.id
 
         exercise_ids = set(request.data["workout_plan"].get("exercises", []))
-        if not len(ExternalExercise.objects.filter(id__in=exercise_ids)) == len(exercise_ids):
+        if not len(ExternalExercise.objects.filter(id__in=exercise_ids)) == len(
+            exercise_ids
+        ):
             return Response(
-                data={"error": "One or more provided exercise ids do not exist"}, status=status.HTTP_400_BAD_REQUEST
+                data={"error": "One or more provided exercise ids do not exist"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         plan_serializer = WorkoutPlanSerializer(data=request.data.get("workout_plan"))
@@ -41,14 +55,20 @@ class WorkoutPlanApiView(APIView):
         request.data["workout_plan"]["user"] = request.user.id
 
         instance = WorkoutPlan.objects.get(pk=plan_id)
-        serializer = WorkoutPlanSerializer(instance, data=request.data.get("workout_plan"))
+        serializer = WorkoutPlanSerializer(
+            instance, data=request.data.get("workout_plan")
+        )
 
         if serializer.is_valid():
             serializer.save()
-            return Response(data={"message": f"Workout plan {plan_id} updated successfully"}, status=status.HTTP_200_OK)
+            return Response(
+                data={"message": f"Workout plan {plan_id} updated successfully"},
+                status=status.HTTP_200_OK,
+            )
 
-        return Response(data={"error": "invalid data"}, status=status.HTTP_400_BAD_REQUEST)
-
+        return Response(
+            data={"error": "invalid data"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     def get(self, request, *args, **kwargs):
         plan_id = kwargs.get("pk")

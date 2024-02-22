@@ -80,9 +80,9 @@ class FavoriteExerciseApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        workout_id = request.data.get("id")
+        exercise_id = request.data.get("id")
 
-        exercise = ExternalExercise.objects.get(id=workout_id)
+        exercise = ExternalExercise.objects.get(id=exercise_id)
         if exercise:
             exercise.favorite = not exercise.favorite
             exercise.save()
