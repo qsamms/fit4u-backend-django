@@ -15,7 +15,7 @@ class ExternalExerciseApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        # Need the api ninjas key in env to acess the exercises api
+        # Need the api ninjas key in env to access the exercises api
         # It's normal for this view to take a long time, http response may timeout
         ExternalExercise.objects.all().delete()
         muscle_groups = [

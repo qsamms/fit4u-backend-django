@@ -79,8 +79,8 @@ class WorkoutApiView(APIView):
         data["workout"]["user"] = request.user.id
         workout_id = kwargs.get("pk")
 
-        for x in data["workout"]["exercises"]:
-            x["workout"] = workout_id
+        for exercise in data["workout"]["exercises"]:
+            exercise["workout"] = workout_id
 
         if workout_id:
             instance = get_object_or_404(Workout, id=workout_id)
@@ -94,12 +94,14 @@ class WorkoutApiView(APIView):
             serializer.save()
 
             exercise_json = data.get("workout").get("exercises")
-            exercise_dict = {x["id"]: x for x in exercise_json}
-            exercises = get_list_or_404(
-                Exercise, id__in=[x["id"] for x in exercise_json]
+            existing_exercises = [x for x in exercise_json if x["id"] not in (None, "undefined")]
+            create_exercises = [x for x in exercise_json if x["id"] in (None, "undefined")]
+            exercise_dict = {x["id"]: x for x in existing_exercises}
+            existing_exercise_objs = get_list_or_404(
+                Exercise, id__in=[x["id"] for x in existing_exercises]
             )
 
-            for exercise in exercises:
+            for exercise in existing_exercise_objs:
                 json = exercise_dict.get(exercise.id)
                 ee = json.get("external_exercise", exercise.external_exercise)
                 if isinstance(ee, int):
@@ -110,12 +112,24 @@ class WorkoutApiView(APIView):
                 exercise.sets = json.get("sets", exercise.sets)
                 exercise.save()
 
-            return Response(data={"message": "workout successfully updated"})
+            for exercise in create_exercises:
+                exercise.pop("id")
+                serializer = ExerciseSerializer(data=exercise)
+                if serializer.is_valid():
+                    serializer.save()
+                else:
+                    return Response(
+                        data={
+                            "message": "error creating new exercises",
+                            "error": serializer.errors,
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
-        return Response(
-            data={"error": "error updating exercises"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+            return Response(
+                data={"message": "workout successfully updated"},
+                status=status.HTTP_200_OK,
+            )
 
     def get(self, request, *args, **kwargs):
         workout_id = kwargs.get("pk", None)
