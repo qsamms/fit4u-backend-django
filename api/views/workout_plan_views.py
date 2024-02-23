@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -5,7 +6,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from api.serializers import WorkoutPlanSerializer
 from api.models import WorkoutPlan, ExternalExercise
-from api.utils import check_required_fields
+from api.utils import is_valid_workout_plan
 
 
 class WorkoutPlanApiView(APIView):
@@ -14,65 +15,75 @@ class WorkoutPlanApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         data = request.data
-        if not check_required_fields(
-            data, required_fields=["workout_plan"]
-        ) or not check_required_fields(
-            data["workout_plan"], required_fields=["name", "exercises"]
-        ):
+
+        if not is_valid_workout_plan(data):
             return Response(
                 data={"error": "invalid request body"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
         data["workout_plan"]["user"] = request.user.id
+        try:
+            exercise_ids = set(data["workout_plan"].get("exercises", []))
+            if not len(ExternalExercise.objects.filter(id__in=exercise_ids)) == len(
+                exercise_ids
+            ):
+                raise Exception("One or more provided exercise ids do not exist")
 
-        exercise_ids = set(data["workout_plan"].get("exercises", []))
-        if not len(ExternalExercise.objects.filter(id__in=exercise_ids)) == len(
-            exercise_ids
-        ):
-            return Response(
-                data={"error": "One or more provided exercise ids do not exist"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            plan_serializer = WorkoutPlanSerializer(data=data.get("workout_plan"))
+            if not plan_serializer.is_valid():
+                raise Exception("error creating workout plan")
+            plan_serializer.save()
 
-        plan_serializer = WorkoutPlanSerializer(data=data.get("workout_plan"))
-        if not plan_serializer.is_valid():
             return Response(
                 data={
-                    "error": "Error creating workout plan",
+                    "message": "Workout plan created successfully",
                 },
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_200_OK,
             )
-        plan_serializer.save()
+        except Exception as e:
+            return Response(data={"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        plan_id = kwargs.get("pk", None)
+
+        instance = get_object_or_404(WorkoutPlan, id=plan_id)
+        instance.delete()
         return Response(
-            data={
-                "message": "Workout plan created successfully",
-            },
+            data={"message": "workout plan deleted successfully"},
             status=status.HTTP_200_OK,
         )
 
     def patch(self, request, *args, **kwargs):
         plan_id = kwargs.get("pk", None)
         data = request.data
-        if not check_required_fields(data, required_fields=["workout_plan"]):
+
+        if not is_valid_workout_plan(data):
             return Response(
                 data={"error": "invalid request body"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        data["workout_plan"]["user"] = request.user.id
-        instance = WorkoutPlan.objects.get(pk=plan_id)
-        serializer = WorkoutPlanSerializer(instance, data=data.get("workout_plan"))
+        try:
+            data["workout_plan"]["user"] = request.user.id
+            exercise_ids = data["workout_plan"].get("exercises", [])
+            if not len(ExternalExercise.objects.filter(id__in=exercise_ids)) == len(
+                exercise_ids
+            ):
+                raise Exception("One or more provided exercise ids do not exist")
 
-        if serializer.is_valid():
+            instance = get_object_or_404(WorkoutPlan, id=plan_id)
+            serializer = WorkoutPlanSerializer(instance, data=data.get("workout_plan"))
+            if not serializer.is_valid():
+                raise Exception("invalid data")
+
             serializer.save()
             return Response(
                 data={"message": f"Workout plan {plan_id} updated successfully"},
                 status=status.HTTP_200_OK,
             )
-
-        return Response(
-            data={"error": "invalid data"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        except Exception as e:
+            return Response(data={"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, *args, **kwargs):
         plan_id = kwargs.get("pk")
