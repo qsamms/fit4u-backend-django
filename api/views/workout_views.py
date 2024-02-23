@@ -94,8 +94,12 @@ class WorkoutApiView(APIView):
             serializer.save()
 
             exercise_json = data.get("workout").get("exercises")
-            existing_exercises = [x for x in exercise_json if x["id"] not in (None, "undefined")]
-            create_exercises = [x for x in exercise_json if x["id"] in (None, "undefined")]
+            existing_exercises = [
+                x for x in exercise_json if x["id"] not in (None, "undefined")
+            ]
+            create_exercises = [
+                x for x in exercise_json if x["id"] in (None, "undefined")
+            ]
             exercise_dict = {x["id"]: x for x in existing_exercises}
             existing_exercise_objs = get_list_or_404(
                 Exercise, id__in=[x["id"] for x in existing_exercises]
