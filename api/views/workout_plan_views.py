@@ -25,7 +25,7 @@ class WorkoutPlanApiView(APIView):
         data["workout_plan"]["user"] = request.user.id
         try:
             exercise_ids = set(data["workout_plan"].get("exercises", []))
-            if not len(ExternalExercise.objects.filter(id__in=exercise_ids)) == len(
+            if len(ExternalExercise.objects.filter(id__in=exercise_ids)) != len(
                 exercise_ids
             ):
                 raise Exception("One or more provided exercise ids do not exist")
@@ -67,7 +67,7 @@ class WorkoutPlanApiView(APIView):
         try:
             data["workout_plan"]["user"] = request.user.id
             exercise_ids = data["workout_plan"].get("exercises", [])
-            if not len(ExternalExercise.objects.filter(id__in=exercise_ids)) == len(
+            if len(ExternalExercise.objects.filter(id__in=exercise_ids)) != len(
                 exercise_ids
             ):
                 raise Exception("One or more provided exercise ids do not exist")
