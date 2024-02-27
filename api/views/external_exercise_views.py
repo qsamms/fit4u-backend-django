@@ -1,3 +1,4 @@
+import concurrent.futures
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -10,34 +11,44 @@ from api.models import ExternalExercise
 import requests
 
 
+def fetch_exercise(muscle_group, difficulty) -> dict | None:
+    response = requests.get(
+        f"https://api.api-ninjas.com/v1/exercises?type=strength&muscle={muscle_group}&difficulty={difficulty}",
+        headers={"X-API-KEY": f"{settings.API_NINJAS_KEY}"},
+    )
+
+    if response.ok and len(response.json()) > 0:
+        return response.json()[0]
+    elif not response.ok:
+        return None
+
+
 class ExternalExerciseApiView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        # Need the api ninjas key in env to access the exercises api
-        # It's normal for this view to take a long time, http response may time out
         ExternalExercise.objects.all().delete()
 
         exercises = []
-        for muscle_group in settings.muscle_groups:
-            for difficulty in settings.difficulties:
-                response = requests.get(
-                    f"https://api.api-ninjas.com/v1/exercises?type=strength&muscle={muscle_group}&difficulty={difficulty}",
-                    headers={"X-API-KEY": f"{settings.API_NINJAS_KEY}"},
-                )
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [
+                executor.submit(fetch_exercise, muscle_group, difficulty)
+                for muscle_group in settings.MUSCLE_GROUPS
+                for difficulty in settings.DIFFICULTIES
+            ]
 
-                if response.ok and len(response.json()) > 0:
-                    exercises.append(response.json()[0])
-                elif not response.ok:
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    exercises.append(future.result())
+                except Exception as e:
                     return Response(
-                        data={"error": response.json()},
-                        status=status.HTTP_400_BAD_REQUEST,
+                        data={"error": str(e)}, status=status.HTTP_400_BAD_REQUEST
                     )
 
-        serializer = ExternalExerciseSerializer(data=exercises, many=True)
+        serializer = ExternalExerciseSerializer(data=[e for e in exercises if e is not None], many=True)
         if not serializer.is_valid():
-            return
+            return Response(data={"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
 
         return Response(

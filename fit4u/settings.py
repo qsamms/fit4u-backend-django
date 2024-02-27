@@ -68,6 +68,26 @@ BASE_API_URL = "http://localhost:8000"
 GOOGLE_OAUTH2_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_OAUTH2_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 
+MUSCLE_GROUPS = [
+    "abdominals",
+    "abductors",
+    "adductors",
+    "biceps",
+    "calves",
+    "chest",
+    "forearms",
+    "glutes",
+    "hamstrings",
+    "lats",
+    "lower_back",
+    "middle_back",
+    "neck",
+    "quadriceps",
+    "traps",
+    "triceps",
+]
+DIFFICULTIES = ["beginner", "intermediate", "expert"]
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -157,23 +177,3 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 DEFAULT_CHARSET = "utf-8"
-
-muscle_groups = [
-    "abdominals",
-    "abductors",
-    "adductors",
-    "biceps",
-    "calves",
-    "chest",
-    "forearms",
-    "glutes",
-    "hamstrings",
-    "lats",
-    "lower_back",
-    "middle_back",
-    "neck",
-    "quadriceps",
-    "traps",
-    "triceps",
-]
-difficulties = ["beginner", "intermediate", "expert"]

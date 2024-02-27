@@ -10,3 +10,4 @@ class ExternalExerciseSerializer(serializers.ModelSerializer):
     instructions = serializers.CharField(
         max_length=None, required=False, allow_blank=True
     )
+    favorite = serializers.BooleanField(default=False)
