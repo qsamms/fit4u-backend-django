@@ -33,4 +33,5 @@ urlpatterns = [
     ),
     path("workout-plan/", WorkoutPlanApiView.as_view(), name="workout_plan"),
     path("workout-plan/<int:pk>/", WorkoutPlanApiView.as_view(), name="workout_plan"),
+    path("goal", GoalApiView.as_view(), name="Goal"),
 ]
