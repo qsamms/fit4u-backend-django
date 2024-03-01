@@ -10,6 +10,7 @@ from api.views import (
     ChangePasswordView,
     FavoriteExerciseApiView,
     WorkoutPlanApiView,
+    AnalyzeApiView,
 )
 
 urlpatterns = [
@@ -33,4 +34,5 @@ urlpatterns = [
     ),
     path("workout-plan/", WorkoutPlanApiView.as_view(), name="workout_plan"),
     path("workout-plan/<int:pk>/", WorkoutPlanApiView.as_view(), name="workout_plan"),
+    path("analyze/", AnalyzeApiView.as_view(), name="analyze"),
 ]

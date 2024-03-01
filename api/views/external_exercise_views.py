@@ -46,9 +46,13 @@ class ExternalExerciseApiView(APIView):
                         data={"error": str(e)}, status=status.HTTP_400_BAD_REQUEST
                     )
 
-        serializer = ExternalExerciseSerializer(data=[e for e in exercises if e is not None], many=True)
+        serializer = ExternalExerciseSerializer(
+            data=[e for e in exercises if e is not None], many=True
+        )
         if not serializer.is_valid():
-            return Response(data={"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                data={"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+            )
         serializer.save()
 
         return Response(
