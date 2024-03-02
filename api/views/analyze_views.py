@@ -33,9 +33,7 @@ class AnalyzeApiView(APIView):
         )
 
         # get the associated exercises for each workout
-        workout_dict = {
-            w.get("id"): w for w in WorkoutSerializer(workouts, many=True).data
-        }
+        workout_dict = {w["id"]: w for w in WorkoutSerializer(workouts, many=True).data}
         for workout in workouts:
             workout_json = workout_dict[workout.id]
             workout_json["exercises"] = ExerciseSerializer(
@@ -61,10 +59,10 @@ class AnalyzeApiView(APIView):
           ...
         }
         """
-        mg_dict = {}
+        analysis_response = {}
         for muscle_group in settings.MUSCLE_GROUPS:
-            rating_sum, rating_num = 0, 0
-            exercises = {}
+            rating_sum, count = 0, 0
+            mg_exercises = {}
             for _, workout in workout_dict.items():
                 for exercise in workout.get("exercises", []):
                     ee = get_object_or_404(
@@ -73,28 +71,23 @@ class AnalyzeApiView(APIView):
                     if ee.muscle == muscle_group:
                         ee_json = ExternalExerciseSerializer(ee).data
                         analysis = analyze_sets(exercise.get("sets", []))
-                        if exercises.get(ee_json.get("id"), None) is not None:
-                            exercises[ee.id].get("weights").append(
-                                analysis.get("largest_weight")
-                            )
+                        if ee_json["id"] in mg_exercises:
+                            mg_exercises[ee.id]["weights"].append(analysis["max_lift"])
                         else:
-                            exercises[ee.id] = ee_json
-                            ee_json["weights"] = []
-                            exercises[ee.id].get("weights").append(
-                                analysis.get("largest_weight")
-                            )
+                            ee_json["weights"] = [analysis["max_lift"]]
+                            mg_exercises[ee.id] = ee_json
 
                         rating_sum += analysis.get("rating_sum")
-                        rating_num += analysis.get("rating_num")
+                        count += analysis.get("count")
 
-            avg_rating = rating_sum / rating_num if rating_num > 0 else 0
-            mg_dict.update(
+            avg_rating = rating_sum / count if count > 0 else 0
+            analysis_response.update(
                 {
                     f"{muscle_group}": {
                         "avg_rating": avg_rating,
-                        "exercises": exercises.values(),
+                        "exercises": mg_exercises.values(),
                     }
                 }
             )
 
-        return Response(data={"analysis": mg_dict}, status=status.HTTP_200_OK)
+        return Response(data={"analysis": analysis_response}, status=status.HTTP_200_OK)
