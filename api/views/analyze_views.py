@@ -42,22 +42,25 @@ class AnalyzeApiView(APIView):
                 workout.exercise_set, many=True
             ).data
 
-        # response will look like this
-        # analysis: {
-        #   abdominals: {
-        #       avgRating: ...,
-        #       exercises: [
-        #           {
-        #           deserialized external exercise info...
-        #           weights: [] list of weights the user has done for that exercise in the time frame provided
-        #           }
-        #       ]
-        #   }
-        #   biceps: {
-        #       ...
-        #   }
-        #   ...
-        # }
+        """
+        Response json will look like this:
+        
+        analysis: {
+          abdominals: {
+              avgRating: ...,   // average rating user gave for exercises with this muscle group
+              exercises: [
+                  {
+                    // exercise info (name, muscle, difficulty, etc.)
+                    weights: ...   // list of weights the user has done for that exercise in the time frame provided
+                  }
+              ]
+          }
+          biceps: {
+              ...
+          }
+          ...
+        }
+        """
         mg_dict = {}
         for muscle_group in settings.MUSCLE_GROUPS:
             rating_sum, rating_num = 0, 0
@@ -70,13 +73,16 @@ class AnalyzeApiView(APIView):
                     if ee.muscle == muscle_group:
                         ee_json = ExternalExerciseSerializer(ee).data
                         analysis = analyze_sets(exercise.get("sets", []))
-                        largest_weight = analysis.get("largest_weight")
                         if exercises.get(ee_json.get("id"), None) is not None:
-                            exercises[ee.id].get("weights").append(largest_weight)
+                            exercises[ee.id].get("weights").append(
+                                analysis.get("largest_weight")
+                            )
                         else:
                             exercises[ee.id] = ee_json
                             ee_json["weights"] = []
-                            exercises[ee.id].get("weights").append(largest_weight)
+                            exercises[ee.id].get("weights").append(
+                                analysis.get("largest_weight")
+                            )
 
                         rating_sum += analysis.get("rating_sum")
                         rating_num += analysis.get("rating_num")
