@@ -72,9 +72,19 @@ class AnalyzeApiView(APIView):
                         ee_json = ExternalExerciseSerializer(ee).data
                         analysis = analyze_sets(exercise.get("sets", []))
                         if ee_json["id"] in mg_exercises:
-                            mg_exercises[ee.id]["weights"].append(analysis["max_lift"])
+                            mg_exercises[ee.id]["weights"].append(
+                                {
+                                    "weight": analysis["max_lift"],
+                                    "datetime": workout.get("datetime"),
+                                }
+                            )
                         else:
-                            ee_json["weights"] = [analysis["max_lift"]]
+                            ee_json["weights"] = [
+                                {
+                                    "weight": analysis["max_lift"],
+                                    "datetime": workout.get("datetime"),
+                                }
+                            ]
                             mg_exercises[ee.id] = ee_json
 
                         rating_sum += analysis.get("rating_sum")

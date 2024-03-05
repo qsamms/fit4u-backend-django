@@ -3,8 +3,17 @@ def analyze_sets(sets) -> dict:
     rating_sum, count = 0, 0
 
     for set in sets:
-        largest = max(largest, set.get("volume"))
-        rating_sum += set.get("rating")
+        volume = set.get("volume")
+        rating = set.get("rating")
+
+        if type(volume) == str:
+            volume = 0 if len(volume) == 0 else int(volume)
+
+        if type(rating) == str:
+            rating = 0 if len(rating) == 0 else int(rating)
+
+        largest = max(largest, volume)
+        rating_sum += rating
         count += 1
 
     return {
