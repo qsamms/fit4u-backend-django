@@ -13,14 +13,7 @@ class Exercise(models.Model):
     UNIT_CHOICES = [
         ("lbs", "lbs"),
         ("kg", "kg"),
-        ("sec", "sec"),
-        ("min", "min"),
-        ("pounds", "pounds"),
-        ("kilograms", "kilograms"),
-        ("seconds", "seconds"),
-        ("minutes", "minutes"),
-        ("hours", "hours"),
-        ("hrs", "hrs"),
+        ("timed", "timed"),
     ]
     unit = models.CharField(max_length=150, null=False, choices=UNIT_CHOICES)
     external_exercise = models.ForeignKey(
