@@ -1,6 +1,6 @@
 def standardize_weight(w, r) -> int:
     # using McGlothlin formula: https://www.fxsolver.com/browse/formulas/One-repetition+maximum+%28McGlothin+formula%29
-    return (100 * w) / (101.3 - (2.67123 * r))
+    return int((100 * w) / (101.3 - (2.67123 * r)))
 
 def analyze_sets(sets, unit) -> dict:
     largest = -1
@@ -19,7 +19,7 @@ def analyze_sets(sets, unit) -> dict:
         if unit == "lbs":
             # convert to kg for McGlothlin formula then back to lbs
             kg = volume / 2.205
-            volume = standardize_weight(kg, set.get("reps")) * 2.205
+            volume = int(standardize_weight(kg, set.get("reps")) * 2.205)
         elif unit == "kg":
             volume = standardize_weight(volume, set.get("reps"))
 
