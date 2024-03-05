@@ -10,13 +10,22 @@ class UserApiView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        user = request.user
         return Response(
             data={
-                "username": user.username,
-                "email": user.email,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
+                "username": request.user.username,
+                "email": request.user.email,
+                "first_name": request.user.first_name,
+                "last_name": request.user.last_name,
+                "preferred_unit": request.user.pref_unit
             },
             status=status.HTTP_200_OK,
+        )
+
+    def patch(self, request, *args, **kwargs):
+        user = request.user
+        data = request.data
+        user.pref_unit = data.get("unit")
+        user.save()
+        return Response(
+            data={"message": "user updated successfully"}, status=status.HTTP_200_OK
         )
