@@ -70,7 +70,7 @@ class AnalyzeApiView(APIView):
                     )
                     if ee.muscle == muscle_group:
                         ee_json = ExternalExerciseSerializer(ee).data
-                        analysis = analyze_sets(exercise.get("sets", []))
+                        analysis = analyze_sets(exercise.get("sets", []), exercise.get("unit"))
                         if ee_json["id"] in mg_exercises:
                             mg_exercises[ee.id]["weights"].append(
                                 {
