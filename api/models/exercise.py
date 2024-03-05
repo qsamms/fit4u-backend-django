@@ -13,7 +13,7 @@ class Exercise(models.Model):
     UNIT_CHOICES = [
         ("lbs", "lbs"),
         ("kg", "kg"),
-        ("bw", "bw")
+        ("bw", "bw"),
         ("timed", "timed"),
     ]
     unit = models.CharField(max_length=150, null=False, choices=UNIT_CHOICES)
