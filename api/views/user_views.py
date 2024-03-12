@@ -16,7 +16,7 @@ class UserApiView(APIView):
                 "email": request.user.email,
                 "first_name": request.user.first_name,
                 "last_name": request.user.last_name,
-                "preferred_unit": request.user.pref_unit
+                "preferred_unit": request.user.pref_unit,
             },
             status=status.HTTP_200_OK,
         )

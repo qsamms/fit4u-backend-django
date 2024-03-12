@@ -7,7 +7,8 @@ from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from api.serializers import ExternalExerciseSerializer
-from api.models import ExternalExercise
+from api.models import ExternalExercise, Exercise
+from api.utils import analyze_sets
 import requests
 
 
@@ -60,14 +61,32 @@ class ExternalExerciseApiView(APIView):
         )
 
     def get(self, request, *args, **kwargs):
-        exercises = ExternalExercise.objects.all()
-        serializer = ExternalExerciseSerializer(exercises, many=True)
+        user = request.user
 
-        favorite_exercises = ExternalExercise.objects.filter(favorite=True)
-        favorite_serializer = ExternalExerciseSerializer(favorite_exercises, many=True)
+        ees = ExternalExercise.objects.all()
+        serializer = ExternalExerciseSerializer(ees, many=True)
+
+        for ee in serializer.data:
+            exercises = Exercise.objects.filter(
+                workout__user=user, external_exercise=ee.get("id")
+            )
+            max_lift = 0
+
+            for exercise in exercises:
+                analysis = analyze_sets(exercise.sets, user.pref_unit)
+                max_lift = max(max_lift, analysis.get("max_lift"))
+
+            if len(exercises) > 0:
+                most_recent_exercise = exercises.latest("workout__datetime")
+                analysis = analyze_sets(most_recent_exercise.sets, user.pref_unit)
+                ee["most_recent"] = analysis.get("max_lift")
+
+            if "most_recent" not in ee:
+                ee["most_recent"] = 0
+            ee["max_lift"] = max_lift
 
         return Response(
-            data={"exercises": serializer.data, "favorites": favorite_serializer.data},
+            data={"exercises": serializer.data},
             status=status.HTTP_200_OK,
         )
 

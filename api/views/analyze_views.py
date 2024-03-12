@@ -70,7 +70,9 @@ class AnalyzeApiView(APIView):
                     )
                     if ee.muscle == muscle_group:
                         ee_json = ExternalExerciseSerializer(ee).data
-                        analysis = analyze_sets(exercise.get("sets", []), exercise.get("unit"))
+                        analysis = analyze_sets(
+                            exercise.get("sets", []), exercise.get("unit")
+                        )
                         if ee_json["id"] in mg_exercises:
                             mg_exercises[ee.id]["weights"].append(
                                 {
@@ -95,7 +97,9 @@ class AnalyzeApiView(APIView):
                 {
                     f"{muscle_group}": {
                         "avg_rating": avg_rating,
-                        "exercises": mg_exercises.values(),
+                        "exercises": sorted(
+                            mg_exercises.values(), key=lambda x: x["name"]
+                        ),
                     }
                 }
             )
